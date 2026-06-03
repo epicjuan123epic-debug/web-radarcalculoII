@@ -1,0 +1,506 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--font-sans);background:var(--color-background-tertiary);min-height:100vh;}
+
+/* ── LOGIN / REGISTRO ── */
+.auth-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1rem;}
+.auth-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:2rem;width:100%;max-width:380px;box-shadow:0 4px 24px rgba(0,0,0,0.06);}
+.auth-logo{text-align:center;margin-bottom:1.5rem;}
+.auth-logo-icon{width:52px;height:52px;border-radius:50%;background:#EEEDFE;display:inline-flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:8px;}
+.auth-logo-title{font-size:18px;font-weight:500;color:var(--color-text-primary);}
+.auth-logo-sub{font-size:12px;color:var(--color-text-tertiary);margin-top:2px;}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:0;background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:3px;margin-bottom:1.5rem;}
+.tab-btn{padding:7px;font-size:13px;font-weight:500;border:none;background:transparent;color:var(--color-text-tertiary);cursor:pointer;border-radius:calc(var(--border-radius-md) - 2px);transition:all 0.2s;}
+.tab-btn.active{background:var(--color-background-primary);color:var(--color-text-primary);box-shadow:0 1px 4px rgba(0,0,0,0.08);}
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:12px;font-weight:500;color:var(--color-text-secondary);margin-bottom:5px;}
+.field input{width:100%;padding:9px 12px;font-size:14px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary);outline:none;transition:border-color 0.15s;}
+.field input:focus{border-color:#534AB7;}
+.field input.err{border-color:#E24B4A;}
+.field input.ok{border-color:#1D9E75;}
+.msg{font-size:12px;padding:8px 12px;border-radius:var(--border-radius-md);margin-bottom:12px;display:none;line-height:1.5;}
+.msg.error{background:#FCEBEB;color:#791F1F;display:block;}
+.msg.success{background:#EAF3DE;color:#27500A;display:block;}
+.msg.info{background:#EEEDFE;color:#3C3489;display:block;}
+.btn-main{width:100%;padding:10px;font-size:14px;font-weight:500;background:#534AB7;color:#fff;border:none;border-radius:var(--border-radius-md);cursor:pointer;transition:opacity 0.15s;margin-top:4px;}
+.btn-main:hover{opacity:0.88;}
+.btn-main:disabled{opacity:0.5;cursor:not-allowed;}
+.auth-footer{text-align:center;font-size:12px;color:var(--color-text-tertiary);margin-top:14px;}
+.users-hint{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:8px 12px;font-size:11px;color:var(--color-text-tertiary);margin-top:12px;text-align:center;}
+.strength{height:4px;border-radius:2px;margin-top:5px;transition:all 0.3s;background:var(--color-border-tertiary);}
+
+/* ── RADAR APP ── */
+.app{display:none;flex-direction:column;height:100vh;background:#050d05;}
+.app-topbar{display:flex;align-items:center;justify-content:space-between;padding:8px 16px;background:#030c03;border-bottom:1px solid #14532d;font-family:var(--font-mono);}
+.app-title{font-size:11px;color:#22c55e;letter-spacing:0.08em;}
+.user-chip{display:flex;align-items:center;gap:8px;}
+.user-avatar{width:28px;height:28px;border-radius:50%;background:#166534;color:#86efac;font-size:12px;font-weight:500;display:flex;align-items:center;justify-content:center;font-family:var(--font-sans);}
+.user-name{font-size:11px;color:#4ade80;font-family:var(--font-mono);}
+.logout-btn{font-size:10px;padding:3px 9px;border:0.5px solid #166534;background:transparent;color:#4ade80;cursor:pointer;border-radius:3px;font-family:var(--font-mono);}
+.logout-btn:hover{background:#052e16;}
+.app-main{display:grid;grid-template-columns:180px 1fr;flex:1;overflow:hidden;}
+.app-side{padding:10px;display:flex;flex-direction:column;gap:10px;border-right:1px solid #14532d;background:#050d05;overflow-y:auto;}
+.app-canvas{display:flex;flex-direction:column;align-items:center;justify-content:center;background:#050d05;}
+canvas{border-radius:50%;}
+.sec-t{font-size:9px;letter-spacing:0.1em;color:#166534;border-bottom:1px solid #14532d;padding-bottom:3px;margin-bottom:7px;text-transform:uppercase;font-family:var(--font-mono);}
+.stat{display:flex;justify-content:space-between;font-size:10px;padding:2px 0;font-family:var(--font-mono);}
+.sk{color:#4ade80;}.sv{color:#86efac;font-weight:500;}
+.r-btn{width:100%;font-size:10px;padding:5px;border:0.5px solid #166534;background:transparent;color:#4ade80;cursor:pointer;border-radius:2px;margin-bottom:3px;font-family:var(--font-mono);}
+.r-btn:hover{background:#052e16;}
+.r-btn.on{background:#166534;}
+select{width:100%;font-size:10px;padding:4px;border:0.5px solid #166534;background:#041f04;color:#86efac;font-family:var(--font-mono);border-radius:2px;}
+input[type=range]{width:100%;accent-color:#22c55e;}
+.mini-l{font-size:9px;color:#166534;margin-bottom:2px;font-family:var(--font-mono);}
+.prog-wrap{height:4px;background:#041f04;border-radius:2px;margin:4px 0;}
+.prog-bar{height:4px;background:#22c55e;border-radius:2px;transition:width 0.1s;}
+.r-area{font-size:14px;font-weight:500;color:#a3e635;font-family:var(--font-mono);text-align:center;margin:4px 0;}
+.step-box{background:#041f04;border-left:2px solid #4ade80;padding:5px 8px;font-size:9px;color:#86efac;line-height:1.7;margin-bottom:4px;font-family:var(--font-mono);}
+.blink{animation:blink 1s step-end infinite;}
+@keyframes blink{50%{opacity:0;}}
+</style>
+
+<!-- ═══ PANTALLA DE AUTH ═══ -->
+<div class="auth-wrap" id="auth-screen">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="auth-logo-icon">◉</div>
+      <div class="auth-logo-title">Radar Polar</div>
+      <div class="auth-logo-sub">Simulador de coordenadas polares</div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" id="tab-login" onclick="switchTab('login')">Iniciar sesión</button>
+      <button class="tab-btn" id="tab-register" onclick="switchTab('register')">Usuario nuevo</button>
+    </div>
+
+    <!-- LOGIN -->
+    <div id="form-login">
+      <div id="msg-login" class="msg"></div>
+      <div class="field">
+        <label>Usuario</label>
+        <input type="text" id="l-user" placeholder="Escribe tu usuario" autocomplete="username" oninput="clearMsg('login')" />
+      </div>
+      <div class="field">
+        <label>Contraseña</label>
+        <input type="password" id="l-pass" placeholder="Escribe tu contraseña" autocomplete="current-password" oninput="clearMsg('login')" onkeydown="if(event.key==='Enter')doLogin()" />
+      </div>
+      <button class="btn-main" onclick="doLogin()">Iniciar sesión →</button>
+      <div class="auth-footer">¿No tienes cuenta? <span style="color:#534AB7;cursor:pointer;font-weight:500;" onclick="switchTab('register')">Crea una aquí</span></div>
+    </div>
+
+    <!-- REGISTRO -->
+    <div id="form-register" style="display:none;">
+      <div id="msg-register" class="msg"></div>
+      <div class="field">
+        <label>Nombre de usuario</label>
+        <input type="text" id="r-user" placeholder="Ej: juan" maxlength="20" oninput="validateUsername(this)" autocomplete="username" />
+      </div>
+      <div class="field">
+        <label>Contraseña</label>
+        <input type="password" id="r-pass" placeholder="Mínimo 4 caracteres" oninput="checkStrength(this.value)" autocomplete="new-password" />
+        <div class="strength" id="strength-bar"></div>
+      </div>
+      <div class="field">
+        <label>Confirmar contraseña</label>
+        <input type="password" id="r-pass2" placeholder="Repite la contraseña" oninput="checkMatch()" autocomplete="new-password" onkeydown="if(event.key==='Enter')doRegister()" />
+      </div>
+      <button class="btn-main" id="btn-register" onclick="doRegister()">Crear cuenta →</button>
+      <div class="auth-footer">¿Ya tienes cuenta? <span style="color:#534AB7;cursor:pointer;font-weight:500;" onclick="switchTab('login')">Inicia sesión</span></div>
+    </div>
+
+    <div class="users-hint" id="users-count">Cargando usuarios...</div>
+  </div>
+</div>
+
+<!-- ═══ PANTALLA DEL RADAR ═══ -->
+<div class="app" id="app-screen">
+  <div class="app-topbar">
+    <span class="app-title">◉ RADAR POLAR SIM — ACTIVO</span>
+    <div class="user-chip">
+      <div class="user-avatar" id="user-avatar">?</div>
+      <span class="user-name" id="user-label">—</span>
+      <button class="logout-btn" onclick="doLogout()">✕ Salir</button>
+    </div>
+  </div>
+  <div class="app-main">
+    <div class="app-side">
+      <div>
+        <div class="sec-t">Curva polar</div>
+        <select id="sel-curve" onchange="changeCurve(this.value)">
+          <option value="cardioide">Cardioide: 1+cos(θ)</option>
+          <option value="rosa3">Rosa 3 pétalos</option>
+          <option value="rosa4">Rosa 4 pétalos</option>
+          <option value="limaçon">Limaçon: 2+cos(θ)</option>
+          <option value="circulo">Círculo: r=3</option>
+          <option value="espiral">Espiral</option>
+        </select>
+      </div>
+      <div>
+        <div class="sec-t">Estado</div>
+        <div class="stat"><span class="sk">Fase</span><span class="sv blink" id="st-fase">LISTO</span></div>
+        <div class="stat"><span class="sk">θ actual</span><span class="sv" id="st-theta">0.00</span></div>
+        <div class="stat"><span class="sk">r actual</span><span class="sv" id="st-r">—</span></div>
+        <div class="stat"><span class="sk">Puntos</span><span class="sv" id="st-pts">0</span></div>
+        <div class="prog-wrap"><div class="prog-bar" id="prog" style="width:0%"></div></div>
+      </div>
+      <div>
+        <div class="sec-t">Área</div>
+        <div class="r-area" id="res-area">—</div>
+        <div style="font-size:9px;color:#4ade80;text-align:center;font-family:var(--font-mono);">unidades²</div>
+      </div>
+      <div>
+        <div class="sec-t">Velocidad</div>
+        <input type="range" min="1" max="40" value="10" id="sl-speed" oninput="speed=+this.value*0.002"/>
+      </div>
+      <div>
+        <div class="sec-t">Controles</div>
+        <button class="r-btn on" id="btn-start" onclick="startTrace()">▶ INICIAR</button>
+        <button class="r-btn" id="btn-pause" onclick="togglePause()" style="display:none">⏸ PAUSAR</button>
+        <button class="r-btn" onclick="resetAll()">⟳ REINICIAR</button>
+        <button class="r-btn" id="btn-fill" onclick="toggleFill()">◈ RELLENAR ÁREA</button>
+        <button class="r-btn on" id="btn-sweep" onclick="toggleSweep()">◉ BARRIDO</button>
+      </div>
+      <div>
+        <div class="sec-t">Fórmula</div>
+        <div class="step-box">A = ½∫r²dθ<br><span style="color:#a3e635;" id="formula-lbl">r=1+cos(θ)</span></div>
+      </div>
+      <div>
+        <div class="sec-t">Pasos cálculo</div>
+        <div id="steps-out" style="font-size:9px;color:#4ade80;font-family:var(--font-mono);">
+          <div class="step-box">Inicia el trazado para ver los pasos.</div>
+        </div>
+      </div>
+    </div>
+    <div class="app-canvas">
+      <canvas id="radar" width="430" height="430"></canvas>
+      <div style="font-size:9px;color:rgba(74,222,128,0.4);margin-top:6px;font-family:var(--font-mono);" id="coords-bar"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════
+   SISTEMA DE USUARIOS (localStorage)
+══════════════════════════════════════ */
+function getUsers(){
+  try{ return JSON.parse(localStorage.getItem('rp_users')||'{}'); }
+  catch{ return {}; }
+}
+function saveUsers(u){ localStorage.setItem('rp_users', JSON.stringify(u)); }
+function getSession(){ return localStorage.getItem('rp_session')||null; }
+function setSession(u){ localStorage.setItem('rp_session', u); }
+function clearSession(){ localStorage.removeItem('rp_session'); }
+
+function updateUsersHint(){
+  const u=getUsers();
+  const n=Object.keys(u).length;
+  document.getElementById('users-count').textContent =
+    n===0 ? 'Aún no hay usuarios registrados'
+    : n===1 ? '1 usuario registrado'
+    : `${n} usuarios registrados`;
+}
+
+function switchTab(tab){
+  const isLogin = tab==='login';
+  document.getElementById('form-login').style.display   = isLogin ? 'block':'none';
+  document.getElementById('form-register').style.display= isLogin ? 'none':'block';
+  document.getElementById('tab-login').classList.toggle('active', isLogin);
+  document.getElementById('tab-register').classList.toggle('active', !isLogin);
+  clearMsg('login'); clearMsg('register');
+}
+
+function showMsg(form, text, type){
+  const el=document.getElementById('msg-'+form);
+  el.textContent=text; el.className='msg '+type;
+}
+function clearMsg(form){
+  const el=document.getElementById('msg-'+form);
+  el.className='msg'; el.textContent='';
+}
+
+function validateUsername(input){
+  const val=input.value.trim();
+  const users=getUsers();
+  if(val.length>0 && users[val.toLowerCase()]){
+    input.classList.add('err'); input.classList.remove('ok');
+    showMsg('register','Ese nombre de usuario ya existe. Elige otro.','error');
+  } else if(val.length>=3){
+    input.classList.remove('err'); input.classList.add('ok');
+    clearMsg('register');
+  } else {
+    input.classList.remove('err','ok');
+  }
+}
+
+function checkStrength(pass){
+  const bar=document.getElementById('strength-bar');
+  if(pass.length===0){bar.style.width='0%';bar.style.background='var(--color-border-tertiary)';return;}
+  if(pass.length<4){bar.style.width='25%';bar.style.background='#E24B4A';}
+  else if(pass.length<7){bar.style.width='55%';bar.style.background='#EF9F27';}
+  else{bar.style.width='100%';bar.style.background='#1D9E75';}
+}
+
+function checkMatch(){
+  const p1=document.getElementById('r-pass').value;
+  const p2=document.getElementById('r-pass2');
+  if(p2.value.length>0){
+    p2.classList.toggle('ok', p1===p2.value);
+    p2.classList.toggle('err', p1!==p2.value);
+  }
+}
+
+function doRegister(){
+  const user=document.getElementById('r-user').value.trim().toLowerCase();
+  const pass=document.getElementById('r-pass').value;
+  const pass2=document.getElementById('r-pass2').value;
+
+  if(!user){ showMsg('register','Escribe un nombre de usuario.','error'); return; }
+  if(user.length<3){ showMsg('register','El usuario debe tener al menos 3 caracteres.','error'); return; }
+  if(!/^[a-z0-9_]+$/.test(user)){ showMsg('register','Solo letras, números y guión bajo. Sin espacios ni tildes.','error'); return; }
+  if(pass.length<4){ showMsg('register','La contraseña debe tener al menos 4 caracteres.','error'); return; }
+  if(pass!==pass2){ showMsg('register','Las contraseñas no coinciden.','error'); return; }
+
+  const users=getUsers();
+  if(users[user]){ showMsg('register','Ese usuario ya está registrado. Elige otro nombre.','error'); return; }
+
+  users[user]={ pass, createdAt: new Date().toISOString() };
+  saveUsers(users);
+  updateUsersHint();
+
+  showMsg('register',`✓ Cuenta creada para "${user}". ¡Ahora inicia sesión!`,'success');
+  setTimeout(()=>{
+    switchTab('login');
+    document.getElementById('l-user').value=user;
+  }, 1400);
+}
+
+function doLogin(){
+  const user=document.getElementById('l-user').value.trim().toLowerCase();
+  const pass=document.getElementById('l-pass').value;
+
+  if(!user){ showMsg('login','Escribe tu usuario.','error'); return; }
+  if(!pass){ showMsg('login','Escribe tu contraseña.','error'); return; }
+
+  const users=getUsers();
+  if(!users[user]){ showMsg('login','El usuario "'+user+'" no está registrado. ¿Quieres crear una cuenta?','error'); return; }
+  if(users[user].pass!==pass){ showMsg('login','Contraseña incorrecta. Inténtalo de nuevo.','error'); return; }
+
+  setSession(user);
+  showMsg('login','✓ Bienvenido, '+user+'! Cargando radar...','success');
+  setTimeout(()=> enterApp(user), 900);
+}
+
+function doLogout(){
+  clearSession();
+  resetAll();
+  document.getElementById('app-screen').style.display='none';
+  document.getElementById('auth-screen').style.display='flex';
+  document.getElementById('l-user').value='';
+  document.getElementById('l-pass').value='';
+  clearMsg('login');
+  if(animId){ cancelAnimationFrame(animId); animId=null; }
+}
+
+function enterApp(user){
+  document.getElementById('auth-screen').style.display='none';
+  document.getElementById('app-screen').style.display='flex';
+  document.getElementById('user-label').textContent=user.toUpperCase();
+  document.getElementById('user-avatar').textContent=user[0].toUpperCase();
+  if(!animId) frame();
+}
+
+/* ══════════════════════════════════════
+   RADAR
+══════════════════════════════════════ */
+const canvas=document.getElementById('radar');
+const ctx=canvas.getContext('2d');
+const W=430,H=430,CX=W/2,CY=H/2,RAD=200;
+let sweepAngle=0,speed=0.02,paused=false,tracing=false,done=false;
+let theta=0,trailPts=[],showFill=false,showSweep=true,animId=null;
+let currentCurve='cardioide';
+
+const CURVES={
+  cardioide:{fn:t=>1+Math.cos(t),loops:1,label:'r=1+cos(θ)',maxR:2.5},
+  rosa3:{fn:t=>Math.abs(Math.cos(3*t)),loops:1,label:'r=|cos(3θ)|',maxR:1.2},
+  rosa4:{fn:t=>Math.abs(Math.cos(2*t)),loops:2,label:'r=|cos(2θ)|',maxR:1.2},
+  'limaçon':{fn:t=>2+Math.cos(t),loops:1,label:'r=2+cos(θ)',maxR:3.5},
+  circulo:{fn:t=>3,loops:1,label:'r=3',maxR:3.5},
+  espiral:{fn:t=>t/(2*Math.PI),loops:3,label:'r=θ/2π',maxR:3.2},
+};
+
+function getCurve(){ return CURVES[currentCurve]; }
+
+function polarToPx(r,th){
+  const s=RAD/getCurve().maxR;
+  return{px:CX+r*s*Math.cos(th),py:CY-r*s*Math.sin(th)};
+}
+
+function drawBG(){
+  ctx.fillStyle='#030c03';ctx.beginPath();ctx.arc(CX,CY,RAD+2,0,2*Math.PI);ctx.fill();
+  for(let i=1;i<=5;i++){
+    ctx.strokeStyle=i===5?'rgba(34,197,94,0.4)':'rgba(34,197,94,0.1)';
+    ctx.lineWidth=i===5?1.5:0.7;
+    ctx.beginPath();ctx.arc(CX,CY,(i/5)*RAD,0,2*Math.PI);ctx.stroke();
+    ctx.fillStyle='rgba(74,222,128,0.35)';ctx.font='8px monospace';
+    ctx.fillText((i/5*getCurve().maxR).toFixed(1),CX+(i/5)*RAD+2,CY-2);
+  }
+  for(let d=0;d<360;d+=30){
+    const rad=d*Math.PI/180;
+    ctx.strokeStyle=d%90===0?'rgba(34,197,94,0.2)':'rgba(34,197,94,0.07)';
+    ctx.lineWidth=0.7;
+    ctx.beginPath();ctx.moveTo(CX,CY);ctx.lineTo(CX+Math.cos(rad)*RAD,CY-Math.sin(rad)*RAD);ctx.stroke();
+    ctx.fillStyle='rgba(34,197,94,0.3)';ctx.font='7px monospace';
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(d+'°',CX+Math.cos(rad)*(RAD+12),CY-Math.sin(rad)*(RAD+12));
+  }
+  ctx.textAlign='left';ctx.textBaseline='alphabetic';
+  ctx.strokeStyle='rgba(34,197,94,0.4)';ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.arc(CX,CY,RAD,0,2*Math.PI);ctx.stroke();
+}
+
+function drawSweepFn(){
+  if(!showSweep)return;
+  const rad=sweepAngle*Math.PI/180;
+  ctx.save();
+  ctx.beginPath();ctx.moveTo(CX,CY);
+  ctx.arc(CX,CY,RAD,-rad,-(rad-1.2),true);ctx.closePath();
+  const g=ctx.createRadialGradient(CX,CY,0,CX,CY,RAD);
+  g.addColorStop(0,'rgba(34,197,94,0)');g.addColorStop(1,'rgba(34,197,94,0.1)');
+  ctx.fillStyle=g;ctx.fill();ctx.restore();
+  const lg=ctx.createLinearGradient(CX,CY,CX+Math.cos(rad)*RAD,CY-Math.sin(rad)*RAD);
+  lg.addColorStop(0,'rgba(34,197,94,0)');lg.addColorStop(1,'rgba(134,239,172,0.75)');
+  ctx.strokeStyle=lg;ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.moveTo(CX,CY);ctx.lineTo(CX+Math.cos(rad)*RAD,CY-Math.sin(rad)*RAD);ctx.stroke();
+}
+
+function drawTrail(){
+  if(trailPts.length<2)return;
+  if(showFill&&trailPts.length>2){
+    ctx.beginPath();ctx.moveTo(CX,CY);
+    trailPts.forEach(p=>ctx.lineTo(p.px,p.py));
+    ctx.closePath();ctx.fillStyle='rgba(163,230,53,0.1)';ctx.fill();
+  }
+  for(let i=1;i<trailPts.length;i++){
+    const prog=i/trailPts.length;
+    const hue=Math.round(prog*200+80);
+    ctx.beginPath();ctx.moveTo(trailPts[i-1].px,trailPts[i-1].py);ctx.lineTo(trailPts[i].px,trailPts[i].py);
+    ctx.strokeStyle=`hsla(${hue},90%,60%,0.8)`;ctx.lineWidth=2;ctx.stroke();
+  }
+}
+
+function drawPoint(){
+  if(!tracing&&trailPts.length===0)return;
+  const r=getCurve().fn(theta);
+  if(isNaN(r))return;
+  const{px,py}=polarToPx(Math.abs(r),theta);
+  ctx.save();ctx.fillStyle='#a3e635';
+  ctx.beginPath();ctx.arc(px,py,5,0,2*Math.PI);ctx.fill();ctx.restore();
+  ctx.fillStyle='rgba(163,230,53,0.85)';ctx.font='9px monospace';
+  ctx.fillText(`r=${Math.abs(r).toFixed(2)}`,px+8,py-3);
+  ctx.fillStyle='rgba(250,204,21,0.7)';
+  ctx.fillText(`θ=${theta.toFixed(2)}`,px+8,py+8);
+}
+
+function computeArea(){
+  const curve=getCurve();
+  const n=2000,maxT=curve.loops*2*Math.PI,dt=maxT/n;
+  let s=0;
+  for(let i=0;i<=n;i++){
+    const r=Math.abs(curve.fn(i/n*maxT)||0);
+    const f=0.5*r*r;
+    s+=(i===0||i===n)?f:2*f;
+  }
+  return Math.abs((dt/2)*s);
+}
+
+function frame(){
+  if(!paused&&tracing){
+    sweepAngle=(sweepAngle+1)%360;
+    const curve=getCurve();
+    const maxT=curve.loops*2*Math.PI;
+    theta=Math.min(theta+speed,maxT);
+    const r=curve.fn(theta);
+    if(!isNaN(r)) trailPts.push(polarToPx(Math.abs(r),theta));
+    document.getElementById('prog').style.width=(theta/maxT*100)+'%';
+    document.getElementById('st-theta').textContent=theta.toFixed(3);
+    document.getElementById('st-r').textContent=Math.abs(r).toFixed(3);
+    document.getElementById('st-pts').textContent=trailPts.length;
+    if(theta>=maxT){ tracing=false; done=true; finishCalc(); }
+  } else if(!tracing&&!done){
+    sweepAngle=(sweepAngle+0.5)%360;
+  }
+  drawBG();drawSweepFn();drawTrail();drawPoint();
+  ctx.fillStyle='#22c55e';ctx.beginPath();ctx.arc(CX,CY,4,0,2*Math.PI);ctx.fill();
+  animId=requestAnimationFrame(frame);
+}
+
+function finishCalc(){
+  const area=computeArea();
+  const curve=getCurve();
+  const maxT=(curve.loops*2*Math.PI).toFixed(4);
+  document.getElementById('res-area').textContent=area.toFixed(5);
+  document.getElementById('st-fase').textContent='COMPLETADO';
+  document.getElementById('btn-pause').style.display='none';
+  document.getElementById('steps-out').innerHTML=`
+    <div class="step-box">1. Fórmula: A=½∫r²dθ<br>β=${maxT} rad</div>
+    <div class="step-box">2. n=2000 subintervalos<br>Δθ=${(maxT/2000).slice?maxT/2000:0}</div>
+    <div class="step-box">3. Regla del trapecio:<br>A≈(Δθ/2)·Σf(θᵢ)</div>
+    <div class="step-box" style="border-color:#a3e635;">4. Resultado:<br><span style="color:#a3e635;font-size:11px;">${area.toFixed(5)} u²</span></div>
+  `;
+  showFill=true;
+  document.getElementById('btn-fill').classList.add('on');
+}
+
+function startTrace(){
+  if(done)resetAll();
+  tracing=true;paused=false;
+  document.getElementById('btn-start').style.display='none';
+  document.getElementById('btn-pause').style.display='block';
+  document.getElementById('st-fase').textContent='TRAZANDO';
+}
+function togglePause(){
+  paused=!paused;
+  document.getElementById('btn-pause').textContent=paused?'▶ REANUDAR':'⏸ PAUSAR';
+  document.getElementById('st-fase').textContent=paused?'PAUSADO':'TRAZANDO';
+}
+function resetAll(){
+  tracing=false;paused=false;done=false;theta=0;trailPts=[];showFill=false;
+  document.getElementById('btn-start').style.display='block';
+  document.getElementById('btn-pause').style.display='none';
+  document.getElementById('st-fase').textContent='LISTO';
+  document.getElementById('st-theta').textContent='0.00';
+  document.getElementById('st-r').textContent='—';
+  document.getElementById('st-pts').textContent='0';
+  document.getElementById('prog').style.width='0%';
+  document.getElementById('res-area').textContent='—';
+  document.getElementById('btn-fill').classList.remove('on');
+  document.getElementById('steps-out').innerHTML='<div class="step-box">Inicia el trazado para ver los pasos.</div>';
+}
+function toggleFill(){showFill=!showFill;document.getElementById('btn-fill').classList.toggle('on',showFill);}
+function toggleSweep(){showSweep=!showSweep;document.getElementById('btn-sweep').classList.toggle('on',showSweep);}
+function changeCurve(v){
+  currentCurve=v;
+  document.getElementById('formula-lbl').textContent=getCurve().label;
+  resetAll();
+}
+
+canvas.addEventListener('mousemove',e=>{
+  const rect=canvas.getBoundingClientRect();
+  const sx=W/rect.width,sy=H/rect.height;
+  const dx=(e.clientX-rect.left)*sx-CX,dy=-((e.clientY-rect.top)*sy-CY);
+  const r=(Math.sqrt(dx*dx+dy*dy)/RAD*getCurve().maxR).toFixed(2);
+  const th=((Math.atan2(dy,dx)*180/Math.PI)+360)%360;
+  document.getElementById('coords-bar').textContent=`r=${r}  θ=${th.toFixed(1)}°  x=${(+r*Math.cos(th*Math.PI/180)).toFixed(2)}  y=${(+r*Math.sin(th*Math.PI/180)).toFixed(2)}`;
+});
+canvas.addEventListener('mouseleave',()=>{document.getElementById('coords-bar').textContent='';});
+
+/* ══ ARRANQUE ══ */
+updateUsersHint();
+const savedSession=getSession();
+if(savedSession && getUsers()[savedSession]){
+  enterApp(savedSession);
+} else {
+  clearSession();
+}
+</script>
